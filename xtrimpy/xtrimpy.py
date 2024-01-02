@@ -886,7 +886,8 @@ class XtrimGUI(QWidget):
             layout = QVBoxLayout(self.helpdialog)
 
             self.iconLabel = QLabel(self)
-            pixmap = QPixmap('lib/xtrim_icon.png')  # Replace with your icon path
+            path_to_icon = pkg_resources.resource_filename(self.package, 'lib/xtrim_icon.png')
+            pixmap = QPixmap(path_to_icon)  # Replace with your icon path
             pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio)
             self.iconLabel.setPixmap(pixmap)
             self.iconLabel.setAlignment(Qt.AlignCenter)  # Center the icon
