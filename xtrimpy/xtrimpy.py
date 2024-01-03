@@ -187,8 +187,7 @@ class XtrimGUI(QWidget):
         # Column headers (optional)
         self.vtableWidget.setHorizontalHeaderLabels(["Quantity", "Value", "Error"])
         self.refresh_value_table()
-        #self.vtableWidget.itemChanged.connect(self.ValueTableItemChanged)
-        # TODO: Implement the above
+        self.vtableWidget.itemChanged.connect(self.ValueTableItemChanged)
 
         base_21.addWidget(label_values)
         base_21.addWidget(self.vtableWidget)
@@ -850,9 +849,27 @@ class XtrimGUI(QWidget):
         elif column_name == '+':
             self.specs[row].add = float(text)
 
-        self.logger.info(f"Modified table cell ({row+1}, {column_name}): {text}")
+        self.logger.info(f"Modified spec table cell ({row+1}, {column_name}): {text}")
         self.plotspec()
         self.refresh_file_table()
+
+        return
+    
+    def ValueTableItemChanged(self, item):
+        # When value table item is changed
+        row = item.row()
+        column = item.column()
+        column_name = self.vtableWidget.horizontalHeaderItem(column).text()
+        text = item.text()
+
+        if self.vtableWidget.item(row, 0).text() == 'Redshift' and column_name == 'Value':
+            self.plotting['redshift'] = float(text)
+        elif row >= 4 and column_name == 'Value':
+            self.plotting['trim_lines'][row - 4] = float(text)
+
+        self.logger.info(f"Modified value table cell ({self.vtableWidget.item(row, 0).text()}, {column_name}): {text}")
+        self.plotspec()
+        self.refresh_value_table()
 
         return
 
