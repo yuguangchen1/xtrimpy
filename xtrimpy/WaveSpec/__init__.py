@@ -1,1 +1,0 @@
-from WaveSpec.wavespec import wavespec_obj

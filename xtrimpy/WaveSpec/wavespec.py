@@ -3,7 +3,7 @@ import os
 from astropy.convolution import Box1DKernel
 from astropy.convolution import convolve, convolve_fft
 import numpy as np
-from WaveSpec import sloader
+from . import sloader
 
 class wavespec_obj:
 

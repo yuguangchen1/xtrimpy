@@ -14,8 +14,8 @@ import numpy as np
 import pkg_resources
 
 
-import WaveSpec.wavespec
-from utils import *
+from .WaveSpec import wavespec
+from .utils import *
 
 def parser_init():
     """Create command-line argument parser for this script."""
@@ -48,8 +48,6 @@ class StatusBarHandler(logging.Handler, QObject):
 class XtrimGUI(QWidget):
     def __init__(self, filenames=None):
         super().__init__()
-
-        self.package = __name__.split('.')[0]
 
         self.specs = []
         self.last_x, self.last_y = np.nan, np.nan
@@ -106,7 +104,7 @@ class XtrimGUI(QWidget):
         self.setWindowTitle('XTRIM')
         self.setGeometry(100, 100, 1000, 710)
 
-        path_to_icon = pkg_resources.resource_filename(self.package, 'lib/xtrim_icon.png')
+        path_to_icon = pkg_resources.resource_filename(__name__, 'lib/xtrim_icon.png')
         self.setWindowIcon(QIcon(path_to_icon))
 
         # Base 1
@@ -226,7 +224,7 @@ class XtrimGUI(QWidget):
         # Add additional elements here as needed
         if filenames is not None:
             self.loadspec(filenames)
-            path_to_linelist = pkg_resources.resource_filename(self.package, 'lib/line_list.dat')
+            path_to_linelist = pkg_resources.resource_filename(__name__, 'lib/line_list.dat')
             self.loadlinelist(path_to_linelist)
             self.update_color()
             self.plotspec(reset_lim=True)
@@ -632,7 +630,7 @@ class XtrimGUI(QWidget):
         
         if type(fns) == list:
             for i, fn in enumerate(fns):
-                self.specs.append(WaveSpec.wavespec_obj(fn))
+                self.specs.append(wavespec.wavespec_obj(fn))
 
         return
     
@@ -868,7 +866,7 @@ class XtrimGUI(QWidget):
                                                 "All Files (*);;FITS Files (*.fits *.fit *.FTS)", options=options)
         if filenames:
             self.loadspec(filenames)
-            path_to_linelist = pkg_resources.resource_filename(self.package, 'lib/line_list.dat')
+            path_to_linelist = pkg_resources.resource_filename(__name__, 'lib/line_list.dat')
             self.loadlinelist(path_to_linelist)
             self.update_color()
             self.plotspec(reset_lim=True)
@@ -886,7 +884,7 @@ class XtrimGUI(QWidget):
             layout = QVBoxLayout(self.helpdialog)
 
             self.iconLabel = QLabel(self)
-            path_to_icon = pkg_resources.resource_filename(self.package, 'lib/xtrim_icon.png')
+            path_to_icon = pkg_resources.resource_filename(__name__, 'lib/xtrim_icon.png')
             pixmap = QPixmap(path_to_icon)  # Replace with your icon path
             pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio)
             self.iconLabel.setPixmap(pixmap)
