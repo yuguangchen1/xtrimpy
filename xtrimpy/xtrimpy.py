@@ -131,6 +131,11 @@ class XtrimGUI(QWidget):
         saveworkspaceAction.triggered.connect(self.saveworkspaceDialog)
         fileMenu.addAction(saveworkspaceAction)
 
+        linelistMenu = menuBar.addMenu('Line List')
+        openlinelistAction = QAction('Open Line List', self)
+        openlinelistAction.triggered.connect(self.openlinelistDialog)
+        linelistMenu.addAction(openlinelistAction)
+
         # help menu
         logMenu = menuBar.addMenu('Log')
         viewlogsAction = QAction('View Logs', self)
@@ -229,13 +234,13 @@ class XtrimGUI(QWidget):
         main_layout.addWidget(self.statusBar)
         self.statusBar.showMessage(self.default_message)
 
+        # load default line list
+        path_to_linelist = pkg_resources.resource_filename(__name__, 'lib/line_list.dat')
+        self.loadlinelist(path_to_linelist)
 
-        # Rest of Base 2
-        # Add additional elements here as needed
+        # parse file names from command line
         if filenames is not None:
             self.loadspec(filenames)
-            path_to_linelist = pkg_resources.resource_filename(__name__, 'lib/line_list.dat')
-            self.loadlinelist(path_to_linelist)
             self.update_color()
             self.plotspec(reset_lim=True)
             self.refresh_file_table()
@@ -679,83 +684,86 @@ class XtrimGUI(QWidget):
 
         self.ax.cla()
 
-        for i, wavespec in enumerate(self.specs):
-            self.ax.step(wavespec.wave * (wavespec.addredshift + 1), \
-                         (wavespec.spec_display * wavespec.mult) + wavespec.add, \
-                         where='mid', color=wavespec.color)
-            if wavespec.error is not None:
-                self.ax.errorbar(wavespec.wave * (wavespec.addredshift + 1), \
-                             (wavespec.spec_display * wavespec.mult) + wavespec.add, \
-                             yerr=wavespec.error_display * wavespec.mult, \
-                             ls='none', color=wavespec.color, alpha=0.8)
+        if len(self.specs) > 0:
+            # do not plot if no spec has been loaded
 
-        xl = self.ax.get_xlim()
-        yl = self.ax.get_ylim()
+            for i, wavespec in enumerate(self.specs):
+                self.ax.step(wavespec.wave * (wavespec.addredshift + 1), \
+                            (wavespec.spec_display * wavespec.mult) + wavespec.add, \
+                            where='mid', color=wavespec.color)
+                if wavespec.error is not None:
+                    self.ax.errorbar(wavespec.wave * (wavespec.addredshift + 1), \
+                                (wavespec.spec_display * wavespec.mult) + wavespec.add, \
+                                yerr=wavespec.error_display * wavespec.mult, \
+                                ls='none', color=wavespec.color, alpha=0.8)
 
-        if reset_lim:
-            self.plotting['box'][:] = xl[0], yl[0], xl[1], yl[1]            
-        
-        #if self.plotting['initial_box'][0] is None:
-        #    self.plotting['initial_box'][:] = xl[0], yl[0], xl[1], yl[1]
+            xl = self.ax.get_xlim()
+            yl = self.ax.get_ylim()
 
-        # reference lines
-        self.ax.axhline(0, 0, 1, color='k', ls=':')
+            if reset_lim:
+                self.plotting['box'][:] = xl[0], yl[0], xl[1], yl[1]            
+            
+            #if self.plotting['initial_box'][0] is None:
+            #    self.plotting['initial_box'][:] = xl[0], yl[0], xl[1], yl[1]
 
-        # ew lines
-        if self.plotting['ew_cont'][3] is not None:
-            self.ax.plot([self.plotting['ew_cont'][0], self.plotting['ew_cont'][2]], \
-                    [self.plotting['ew_cont'][1], self.plotting['ew_cont'][3]], \
-                    color='red')
-        # gauss
-        if self.gauss_wave is not None:
-            self.ax.plot(self.gauss_wave, self.gauss_model, color='red')
+            # reference lines
+            self.ax.axhline(0, 0, 1, color='k', ls=':')
 
-        # redshift line
-        if np.isfinite(self.plotting['redshift_line']):
-            self.ax.axvline(self.plotting['redshift_line'], 0, 1, color='red')
+            # ew lines
+            if self.plotting['ew_cont'][3] is not None:
+                self.ax.plot([self.plotting['ew_cont'][0], self.plotting['ew_cont'][2]], \
+                        [self.plotting['ew_cont'][1], self.plotting['ew_cont'][3]], \
+                        color='red')
+            # gauss
+            if self.gauss_wave is not None:
+                self.ax.plot(self.gauss_wave, self.gauss_model, color='red')
 
-        # trim lines
-        if len(self.plotting['trim_lines']) > 0:
-            for i, tl in enumerate(self.plotting['trim_lines']):
-                self.ax.axvline(tl, 0, 1, color='red')
-                yw = self.plotting['box'][3] - self.plotting['box'][1]
-                self.ax.text(tl, self.plotting['box'][1] + 0.0 * yw, \
-                             '{0:.4f}'.format(tl), \
-                             rotation=0, ha='center', va='bottom', color='red', fontsize='small')
-                self.ax.text(tl / (1 + self.plotting['redshift']), self.plotting['box'][3] - 0.0 * yw, \
-                             '{0:.4f}'.format(tl), \
-                             rotation=0, ha='center', va='top', color='red', fontsize='small')
-                
-        # line list
-        if len(self.linelist['waves']) > 0:
-            for i, llwave in enumerate(self.linelist['waves']):
-                kwargs = {**self.lldefaults, **self.linelist['kwargs'][i]}
-                self.ax.axvline(llwave * (1 + self.plotting['redshift']), 0, 1, **kwargs)
+            # redshift line
+            if np.isfinite(self.plotting['redshift_line']):
+                self.ax.axvline(self.plotting['redshift_line'], 0, 1, color='red')
 
-                yw = self.plotting['box'][3] - self.plotting['box'][1]
-                self.ax.text(llwave * (1 + self.plotting['redshift']), self.plotting['box'][1] - 0.02 * yw, \
-                             self.linelist['labels'][i], \
-                             rotation=-90, ha='center', va='top', color=kwargs['color'], \
-                             fontsize='small')
-                
-        self.ax.text(0.99, 0.98, 'Redshift = {0:.6f}'.format(self.plotting['redshift']), \
-                     color=self.lldefaults['color'], ha='right', va='top', transform=self.ax.transAxes)
+            # trim lines
+            if len(self.plotting['trim_lines']) > 0:
+                for i, tl in enumerate(self.plotting['trim_lines']):
+                    self.ax.axvline(tl, 0, 1, color='red')
+                    yw = self.plotting['box'][3] - self.plotting['box'][1]
+                    self.ax.text(tl, self.plotting['box'][1] + 0.0 * yw, \
+                                '{0:.4f}'.format(tl), \
+                                rotation=0, ha='center', va='bottom', color='red', fontsize='small')
+                    self.ax.text(tl / (1 + self.plotting['redshift']), self.plotting['box'][3] - 0.0 * yw, \
+                                '{0:.4f}'.format(tl), \
+                                rotation=0, ha='center', va='top', color='red', fontsize='small')
+                    
+            # line list
+            if len(self.linelist['waves']) > 0:
+                for i, llwave in enumerate(self.linelist['waves']):
+                    kwargs = {**self.lldefaults, **self.linelist['kwargs'][i]}
+                    self.ax.axvline(llwave * (1 + self.plotting['redshift']), 0, 1, **kwargs)
 
-        self.ax.set_xlim(self.plotting['box'][0], self.plotting['box'][2])
-        self.ax.set_ylim(self.plotting['box'][1], self.plotting['box'][3])
+                    yw = self.plotting['box'][3] - self.plotting['box'][1]
+                    self.ax.text(llwave * (1 + self.plotting['redshift']), self.plotting['box'][1] - 0.02 * yw, \
+                                self.linelist['labels'][i], \
+                                rotation=-90, ha='center', va='top', color=kwargs['color'], \
+                                fontsize='small')
+                    
+            self.ax.text(0.99, 0.98, 'Redshift = {0:.6f}'.format(self.plotting['redshift']), \
+                        color=self.lldefaults['color'], ha='right', va='top', transform=self.ax.transAxes)
 
-        self.ax.set_xlabel('Wavelength')
-        self.ax.set_ylabel('Flux')
+            self.ax.set_xlim(self.plotting['box'][0], self.plotting['box'][2])
+            self.ax.set_ylim(self.plotting['box'][1], self.plotting['box'][3])
 
-        # secondary x
-        def wave2wave0(x):
-            return x / (1 + self.plotting['redshift'])
-        def wave02wave(x):
-            return x * (1 + self.plotting['redshift'])
-        secax = self.ax.secondary_xaxis('top', functions=(wave2wave0, wave02wave))
-        secax.set_xlabel('Rest Wavelength')
-        
-        self.canvas.draw()
+            self.ax.set_xlabel('Wavelength')
+            self.ax.set_ylabel('Flux')
+
+            # secondary x
+            def wave2wave0(x):
+                return x / (1 + self.plotting['redshift'])
+            def wave02wave(x):
+                return x * (1 + self.plotting['redshift'])
+            secax = self.ax.secondary_xaxis('top', functions=(wave2wave0, wave02wave))
+            secax.set_xlabel('Rest Wavelength')
+            
+            self.canvas.draw()
 
         return
     
@@ -939,7 +947,7 @@ class XtrimGUI(QWidget):
     def saveworkspaceDialog(self):
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getSaveFileName(self, "Save Workspace", "xtrim_workspace.wks",
-                                                  "All Files (*);;Workspace Files (*.wks)", options=options)
+                                                  "All Files (*);;Workspace File (*.wks)", options=options)
         if fileName:
             try:
                 pickle.dump((self.__version__, self.specs, self.plotting, self.gauss_wave, self.gauss_model, self.linelist), \
@@ -960,6 +968,15 @@ class XtrimGUI(QWidget):
         error_dialog.setWindowTitle(title)
         error_dialog.setText(message)
         error_dialog.exec_()
+
+    def openlinelistDialog(self):
+        options = QFileDialog.Options()
+        llfn, _ = QFileDialog.getOpenFileName(self, "Open line list file", "",
+                                                "All Files (*);;Line list File (*.dat)", options=options)
+        if llfn:
+            self.loadlinelist(llfn)
+            self.plotspec()
+            self.logger.info(f"Loaded line list file: " + str(llfn))
 
     def showHelpDialog(self):
         # Create the dialog if it doesn't exist or is not visible
