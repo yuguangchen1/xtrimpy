@@ -3,7 +3,7 @@ import os
 import argparse
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
     QMenuBar, QAction, QStatusBar, QFileDialog, QTableWidget, QTableWidgetItem, \
-    QDialog, QTextEdit, QSizePolicy, QTextBrowser
+    QDialog, QTextEdit, QSizePolicy, QTextBrowser, QMessageBox
 from PyQt5.QtGui import QColor, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QEvent, pyqtSignal, QObject
 import logging
@@ -12,6 +12,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
 import pkg_resources
+import pickle
 
 
 from .WaveSpec import wavespec
@@ -48,6 +49,8 @@ class StatusBarHandler(logging.Handler, QObject):
 class XtrimGUI(QWidget):
     def __init__(self, filenames=None):
         super().__init__()
+
+        self.__version__ = '0.1.0'
 
         self.specs = []
         self.last_x, self.last_y = np.nan, np.nan
@@ -117,17 +120,24 @@ class XtrimGUI(QWidget):
 
         # File menu
         fileMenu = menuBar.addMenu('File')
-        openAction = QAction('Open', self)
+        openAction = QAction('Open Spectrum', self)
         openAction.triggered.connect(self.openFileNameDialog)
         fileMenu.addAction(openAction)
-        saveAction = QAction('Save Workspace', self)
-        fileMenu.addAction(saveAction)
+
+        loadworkspaceAction = QAction('Load Workspace', self)
+        loadworkspaceAction.triggered.connect(self.loadworkspaceDialog)
+        fileMenu.addAction(loadworkspaceAction)
+        saveworkspaceAction = QAction('Save Workspace', self)
+        saveworkspaceAction.triggered.connect(self.saveworkspaceDialog)
+        fileMenu.addAction(saveworkspaceAction)
 
         # help menu
         logMenu = menuBar.addMenu('Log')
         viewlogsAction = QAction('View Logs', self)
         viewlogsAction.triggered.connect(self.showLogDialog)
         logMenu.addAction(viewlogsAction)
+        savelogsAction = QAction('Save Logs', self)
+        logMenu.addAction(savelogsAction)
 
 
         # help menu
@@ -889,6 +899,44 @@ class XtrimGUI(QWidget):
             self.plotspec(reset_lim=True)
             self.refresh_file_table()
             self.logger.info(f"Loaded files: " + str(filenames))
+
+    def loadworkspaceDialog(self):
+        options = QFileDialog.Options()
+        wksfn, _ = QFileDialog.getOpenFileName(self, "Open workspace file", "",
+                                                "All Files (*);;Workspace Files (*.wks)", options=options)
+        if wksfn:
+            version, self.specs, self.plotting, self.gauss_wave, self.gauss_model, self.linelist = \
+                pickle.load(open(wksfn, 'rb'))
+            
+            self.plotspec()
+            self.refresh_file_table()
+            self.refresh_value_table()
+            self.logger.info(f"Loaded workspace file: " + str(wksfn))
+
+    def saveworkspaceDialog(self):
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save Workspace", "xtrim_workspace.wks",
+                                                  "All Files (*);;Text Files (*.wks)", options=options)
+        if fileName:
+            try:
+                pickle.dump((self.__version__, self.specs, self.plotting, self.gauss_wave, self.gauss_model, self.linelist), \
+                            open(fileName, 'wb'))
+                self.logger.info(f"Saved workspace file: " + str(fileName))
+            except PermissionError:
+                self.showErrorDialog("Permission denied", "You do not have permission to save to this location.")
+            except OSError as e:
+                # Handle other issues like disk space errors
+                self.showErrorDialog("Error saving file", str(e))
+            except Exception as e:
+                # Handle other unforeseen errors
+                self.showErrorDialog("Error", f"An unexpected error occurred: {str(e)}")
+
+    def showErrorDialog(self, title, message):
+        error_dialog = QMessageBox()
+        error_dialog.setIcon(QMessageBox.Critical)
+        error_dialog.setWindowTitle(title)
+        error_dialog.setText(message)
+        error_dialog.exec_()
 
     def showHelpDialog(self):
         # Create the dialog if it doesn't exist or is not visible
