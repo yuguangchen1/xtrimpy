@@ -45,24 +45,34 @@ def fit_gauss(wavespec, gl):
     spec = wavespec.spec_display
     espec = wavespec.error_display
 
-    index = (wave >= gl[0]) & (wave < gl[1])
-    wmodel = wave[index]
+    index = (wave >= gl[0]) & (wave < gl[1]) * np.isfinite(spec)
+    if espec is not None:
+        index = index * np.isfinite(espec)
+    spec_fit = spec[index]
+    if espec is not None:
+        espec_fit = espec[index]
+    wave_fit = wave[index]
+    index = np.argsort(wave_fit)
+    wave_fit = wave_fit[index]
+    spec_fit = spec_fit[index]
+    if espec is not None:
+        espec_fit = espec_fit[index]
 
     # calculate initial guess
-    guess = (1., np.median(wave[index]), 1., np.median(spec[index]), 0)
+    guess = (np.max(spec_fit) - np.min(spec_fit), np.median(wave_fit), (wave_fit[-1] - wave_fit[1])/2, np.median(spec_fit), 0)
     if espec is None:
-        popt, pcov = optimize.curve_fit(gauss, wave[index], spec[index], p0=guess)
+        popt, pcov = optimize.curve_fit(gauss, wave_fit, spec_fit, p0=guess)
     else:
-        popt, pcov = optimize.curve_fit(gauss, wave[index], spec[index], p0=guess, \
-                                        sigma=espec, absolute_sigma=True)
+        popt, pcov = optimize.curve_fit(gauss, wave_fit, spec_fit, p0=guess, \
+                                        sigma=espec_fit, absolute_sigma=True)
 
-    specmodel = gauss(wmodel, *popt)
+    specmodel = gauss(wave_fit, *popt)
 
     flux = [popt[0], np.sqrt(pcov[0, 0])]
     ew = [popt[0] / popt[3], np.sqrt(pcov[0, 0] / popt[3]**2 + popt[0]**2 * pcov[3, 3] / popt[3]**4)]
     center = [popt[1], np.sqrt(pcov[1, 1])]
 
-    return flux, ew, center, wmodel, specmodel
+    return flux, ew, center, wave_fit, specmodel
 
 def parse_line_list(line):
     # Split the line by whitespace

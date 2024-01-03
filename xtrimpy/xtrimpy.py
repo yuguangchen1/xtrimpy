@@ -3,7 +3,7 @@ import os
 import argparse
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
     QMenuBar, QAction, QStatusBar, QFileDialog, QTableWidget, QTableWidgetItem, \
-    QDialog, QTextEdit, QSizePolicy, QTextBrowser, QMessageBox, QPushButton
+    QDialog, QTextEdit, QSizePolicy, QTextBrowser, QMessageBox, QPushButton, QMenu
 from PyQt5.QtGui import QColor, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QEvent, pyqtSignal, QObject
 import logging
@@ -13,9 +13,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pkg_resources
 import pickle
+import inspect
 
 
-from .WaveSpec import wavespec
+from .WaveSpec import wavespec, sloader
 from .utils import *
 
 def parser_init():
@@ -123,6 +124,15 @@ class XtrimGUI(QWidget):
         openAction = QAction('Open Spectrum', self)
         openAction.triggered.connect(self.openFileNameDialog)
         fileMenu.addAction(openAction)
+
+        openwithMenu = QMenu('Open with...', self)
+        fileMenu.addMenu(openwithMenu)
+
+        sloader_names, sloader_funcs = self.get_all_loadspec_methods()
+        for func_name, func in zip(sloader_names, sloader_funcs):
+            openwithAction = QAction(func_name, self)
+            openwithAction.triggered.connect(lambda _, f=func: self.openFileNameDialog(loader=f))
+            openwithMenu.addAction(openwithAction)
 
         loadworkspaceAction = QAction('Load Workspace', self)
         loadworkspaceAction.triggered.connect(self.loadworkspaceDialog)
@@ -660,15 +670,27 @@ class XtrimGUI(QWidget):
                         self.statusBar.showMessage("'s': input smoothing width: " + ''.join(self.input_buffer))
                             
 
-    def loadspec(self, fns):
+    def get_all_loadspec_methods(self):
+        func_names = []
+        funcs = []
+        for name, obj in inspect.getmembers(sloader, inspect.isfunction):
+            func_names.append(name)
+            funcs.append(obj)
+
+        return func_names, funcs
+
+
+    def loadspec(self, fns, loader=sloader.default):
 
         if type(fns) == str:
             fns = [fns]
         
         if type(fns) == list:
             for i, fn in enumerate(fns):
-                self.specs.append(wavespec.wavespec_obj(fn))
-
+                #try:
+                self.specs.append(wavespec.wavespec_obj(fn, loader=loader))
+                #except:
+                #    self.showErrorDialog("Error loading spectrum", "")
         return
     
     def loadlinelist(self, fn):
@@ -915,15 +937,15 @@ class XtrimGUI(QWidget):
         return
 
     
-    def openFileNameDialog(self):
+    def openFileNameDialog(self, loader=sloader.default):
 
         options = QFileDialog.Options()
         # Uncomment the next line if you want a native dialog.
         #options |= QFileDialog.DontUseNativeDialog
         filenames, _ = QFileDialog.getOpenFileNames(self, "Load one or more files", "",
-                                                "All Files (*);;FITS Files (*.fits *.fit *.FTS)", options=options)
+                                                "All Files (*);;FITS Files (*.fits *.fit *.FTS);;tbl files (*.tbl)", options=options)
         if filenames:
-            self.loadspec(filenames)
+            self.loadspec(filenames, loader=loader)
             path_to_linelist = pkg_resources.resource_filename(__name__, 'lib/line_list.dat')
             self.loadlinelist(path_to_linelist)
             self.update_color()

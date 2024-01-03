@@ -43,3 +43,11 @@ def default(fn):
     wave = np.array([wav0 + (i - pix0 + 1) * dwav for i in range(nwav)])
 
     return wave, spec, None
+
+def SpitzerIRS(fn):
+    from astropy.io import ascii
+
+    tab = ascii.read(fn)
+
+    return tab['wavelength'], tab['flux_density'], tab['error']
+
