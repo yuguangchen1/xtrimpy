@@ -9,7 +9,6 @@ except ImportError:
 conf = ConfigParser()
 conf.read(['setup.cfg'])
 metadata = dict(conf.items("metadata"))
-options = dict(conf.items("options"))
 
 NAME = metadata['name']
 VERSION = metadata['version']
@@ -29,7 +28,7 @@ setuptools.setup(name=NAME,
       version=VERSION,
       license=LICENSE,
       description=DESCRIPTION,
-      long_description=open('README.rst').read(),
+      long_description=open('README.md').read(),
       author=AUTHOR,
       author_email=AUTHOR_EMAIL,
       packages=setuptools.find_packages(),
