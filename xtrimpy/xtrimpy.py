@@ -3,7 +3,7 @@ import os
 import argparse
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
     QMenuBar, QAction, QStatusBar, QFileDialog, QTableWidget, QTableWidgetItem, \
-    QDialog, QTextEdit, QSizePolicy, QTextBrowser, QMessageBox
+    QDialog, QTextEdit, QSizePolicy, QTextBrowser, QMessageBox, QPushButton
 from PyQt5.QtGui import QColor, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QEvent, pyqtSignal, QObject
 import logging
@@ -137,6 +137,7 @@ class XtrimGUI(QWidget):
         viewlogsAction.triggered.connect(self.showLogDialog)
         logMenu.addAction(viewlogsAction)
         savelogsAction = QAction('Save Logs', self)
+        savelogsAction.triggered.connect(self.saveLogDialog)
         logMenu.addAction(savelogsAction)
 
 
@@ -282,6 +283,10 @@ class XtrimGUI(QWidget):
             self.logtext.setText("\n".join(self.handler.log_records))  # Join log records and set as text
             layout.addWidget(self.logtext)
 
+            savelogbutton = QPushButton('Save Logs')
+            savelogbutton.clicked.connect(self.saveLogDialog)
+            layout.addWidget(savelogbutton)
+
             self.dialog.setLayout(layout)
             #self.dialog.setWindowModality(Qt.WindowModal)
             
@@ -297,6 +302,24 @@ class XtrimGUI(QWidget):
         self.logtext.append(message)
 
         return
+    
+    def saveLogDialog(self):
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save Logs", "xtrim.log",
+                                                  "All Files (*);;Text Files (*.log)", options=options)
+        if fileName:
+            try:
+                with open(fileName, 'w') as file:
+                    file.write("\n".join(self.handler.log_records))
+                self.logger.info(f"Saved log file: " + str(fileName))
+            except PermissionError:
+                self.showErrorDialog("Permission denied", "You do not have permission to save to this location.")
+            except OSError as e:
+                # Handle other issues like disk space errors
+                self.showErrorDialog("Error saving file", str(e))
+            except Exception as e:
+                # Handle other unforeseen errors
+                self.showErrorDialog("Error", f"An unexpected error occurred: {str(e)}")
 
     def checkblocking(self, key):
         if self.plotting['blocking'] is None:
@@ -916,7 +939,7 @@ class XtrimGUI(QWidget):
     def saveworkspaceDialog(self):
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getSaveFileName(self, "Save Workspace", "xtrim_workspace.wks",
-                                                  "All Files (*);;Text Files (*.wks)", options=options)
+                                                  "All Files (*);;Workspace Files (*.wks)", options=options)
         if fileName:
             try:
                 pickle.dump((self.__version__, self.specs, self.plotting, self.gauss_wave, self.gauss_model, self.linelist), \
