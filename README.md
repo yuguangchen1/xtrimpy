@@ -1,4 +1,5 @@
 # XTRIM
+![alt text](xtrimpy/lib/xtrim_icon.png)
 Light-weight spectroscopic analysis and identification tool
 
 Designed and maintained by Yuguang Chen
@@ -27,7 +28,7 @@ For more information, visit [GitHub](https://github.com/yuguangchen1/xtrimpy).
 - '/': pan down
 
 ## Custom line list:
-The line list can be customized, by copying and modifing the [line_list.dat](https://github.com/yuguangchen1/xtrimpy/blob/main/examples/line_list.dat). 
+The line list can be customized, by copying and modifing the [line_list.dat](examples/line_list.dat). 
 The first and second columns are wavelengths and labels. Note that the labels cannot contain empty spaces. 
 Additional plotting options for `plt.step()` can be specified similar to:
 ```
