@@ -27,8 +27,18 @@ For more information, visit [GitHub](https://github.com/yuguangchen1/xtrimpy).
 - '/': pan down
 
 ## Custom line list:
-The line list can be customized, by copying and modifing the [line_list.dat](https://github.com/yuguangchen1/xtrimpy/examples/line_list.dat). 
-The first and second columns are wavelengths and labels. Note that the labels cannot contain empty spaces. Additional plotting options for `plt.step()` can be specified similar to
+The line list can be customized, by copying and modifing the [line_list.dat](https://github.com/yuguangchen1/xtrimpy/blob/main/examples/line_list.dat). 
+The first and second columns are wavelengths and labels. Note that the labels cannot contain empty spaces. 
+Additional plotting options for `plt.step()` can be specified similar to:
 ```
 3727.4	[OII]   color='green' ls=':'
 ```
+
+## Custom loading functions:
+The default reading function reads spectra from the first extension of FITS files and calculate wavelengths from the headers. 
+You can add custom functions in `WaveSpec.sloader`, by defining a function that takes a file name and returns `wavelength, flux, error`. 
+If the spectrum does not have a corresponding error spectrum, replace `error` with `None`. 
+After restart, the newly added function will appear in the `File > Open with...` drop down menu. 
+
+Bug reports and suggestions are welcome!
+
