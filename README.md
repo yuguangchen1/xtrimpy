@@ -1,6 +1,6 @@
 # XTRIM
 
-v0.1.0
+v0.1.0dev
 
 <img src="xtrimpy/lib/xtrim_icon.png" width="100">
 
