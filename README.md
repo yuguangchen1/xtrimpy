@@ -31,6 +31,9 @@ For more information, visit [GitHub](https://github.com/yuguangchen1/xtrimpy).
 - '''': pan up
 - '/': pan down
 
+## Screenshot
+<img src="examples/Screenshot.png">
+
 ## Custom line list:
 The line list can be customized, by copying and modifing the [line_list.dat](examples/line_list.dat). 
 The first and second columns are wavelengths and labels. Note that the labels cannot contain empty spaces. 
