@@ -3,7 +3,7 @@ Light-weight spectroscopic analysis and identification tool
 
 Designed and maintained by Yuguang Chen
 
-For more information, visit [GitHub](https://github.com/yuguangchen1).
+For more information, visit [GitHub](https://github.com/yuguangchen1/xtrimpy).
 
 ## Shortcuts:
 
@@ -26,3 +26,9 @@ For more information, visit [GitHub](https://github.com/yuguangchen1).
 - '''': pan up
 - '/': pan down
 
+## Custom line list:
+The line list can be customized, by copying and modifing the [line_list.dat](https://github.com/yuguangchen1/xtrimpy/examples/line_list.dat). 
+The first and second columns are wavelengths and labels. Note that the labels cannot contain empty spaces. Additional plotting options for `plt.step()` can be specified similar to
+```
+3727.4	[OII]   color='green' ls=':'
+```
