@@ -2,7 +2,7 @@
 
 v0.1.0
 
-<img src="xtrimpy/lib/xtrim_icon.png" width="48">
+<img src="xtrimpy/lib/xtrim_icon.png" width="100">
 
 Light-weight spectroscopic analysis and identification tool
 
