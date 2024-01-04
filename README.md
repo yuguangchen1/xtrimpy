@@ -1,5 +1,6 @@
 # XTRIM
-![alt text](xtrimpy/lib/xtrim_icon.png)
+![alt text](xtrimpy/lib/xtrim_icon.png | width=100)
+
 Light-weight spectroscopic analysis and identification tool
 
 Designed and maintained by Yuguang Chen
