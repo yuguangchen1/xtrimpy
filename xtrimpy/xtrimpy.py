@@ -224,7 +224,7 @@ class XtrimGUI(QWidget):
         label_files = QLabel('Loaded Files:')
         self.tableWidget = QTableWidget()
         self.tableWidget.setRowCount(0)  # Set number of rows
-        self.tableWidget.setColumnCount(6)  # Set number of columns
+        self.tableWidget.setColumnCount(7)  # Set number of columns
         # Column headers (optional)
         self.tableWidget.setHorizontalHeaderLabels(["Filename", "+Redshift", "Smooth", "x", "+", "Color"])
         self.tableWidget.setColumnWidth(0, 200)
@@ -233,6 +233,7 @@ class XtrimGUI(QWidget):
         self.tableWidget.setColumnWidth(3, 70)
         self.tableWidget.setColumnWidth(4, 70)
         self.tableWidget.setColumnWidth(5, 70)
+        self.tableWidget.setColumnWidth(6, 70)
         self.tableWidget.itemChanged.connect(self.TableItemChanged)
     
         
@@ -891,11 +892,29 @@ class XtrimGUI(QWidget):
                     else:
                         item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                     self.tableWidget.setItem(i, column, item)
+                
+                # delete button
+                btn_delete = QPushButton('Delete')
+                btn_delete.clicked.connect(lambda: self.deleteRow(btn_delete))
+                self.tableWidget.setCellWidget(i, 6, btn_delete)
 
         self.tableWidget.blockSignals(False)
 
         return
-    
+
+    def deleteRow(self, button):
+        # Find the button's row
+        index = self.tableWidget.indexAt(button.pos())
+        if index.isValid():
+            fn = self.tableWidget.item(index.row(), 0).text()
+            row = index.row()
+            self.specs.pop(row)
+            self.tableWidget.removeRow(index.row())
+        
+            self.logger.info(f"Removed spectra ({row+1}): {fn}")
+            self.plotspec()
+            self.refresh_file_table()
+        
     def TableItemChanged(self, item):
         # This method is called whenever an item is changed in the table
         row = item.row()
@@ -1036,7 +1055,7 @@ class XtrimGUI(QWidget):
                 <body>
                     <center><h2>XTRIM 0.1.0</h2></center>
                     <p>Designed and maintained by Yuguang Chen</p>
-                    <p>For more information, visit <a href='https://github.com/yuguangchen1'>GitHub</a>.</p>
+                    <p>For more information, visit <a href='https://github.com/yuguangchen1/xtrimpy'>GitHub</a>.</p>
 
                     <h3>Shortcuts:</h3>
                     <ul class="shortcut-list">
