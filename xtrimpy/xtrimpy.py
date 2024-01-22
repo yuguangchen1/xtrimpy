@@ -122,7 +122,7 @@ class XtrimGUI(QWidget):
         # File menu
         fileMenu = menuBar.addMenu('File')
         openAction = QAction('Open Spectrum', self)
-        openAction.triggered.connect(self.openFileNameDialog)
+        openAction.triggered.connect(lambda _, f=wavespec.sloader.default: self.openFileNameDialog(loader=f))
         fileMenu.addAction(openAction)
 
         openwithMenu = QMenu('Open with...', self)
