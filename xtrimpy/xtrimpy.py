@@ -753,8 +753,8 @@ class XtrimGUI(QWidget):
                     self.ax.text(tl, self.plotting['box'][1] + 0.0 * yw, \
                                 '{0:.4f}'.format(tl), \
                                 rotation=0, ha='center', va='bottom', color='red', fontsize='small')
-                    self.ax.text(tl / (1 + self.plotting['redshift']), self.plotting['box'][3] - 0.0 * yw, \
-                                '{0:.4f}'.format(tl), \
+                    self.ax.text(tl, self.plotting['box'][3] - 0.0 * yw, \
+                                '{0:.4f}'.format(tl / (1 + self.plotting['redshift'])), \
                                 rotation=0, ha='center', va='top', color='red', fontsize='small')
                     
             # line list
