@@ -61,3 +61,11 @@ def Jades_NIRSpec(fn):
 
     return wave, flux, err
 
+def HIRES(fn):
+    hdu = fits.open(fn)[0]
+    hdr = hdu.header
+    spec = hdu.data
+    wave = 10**((np.arange(len(spec)) - hdr['CRPIX1'] + 1) * hdr['CDELT1'] + hdr['CRVAL1'])
+
+    return wave, spec, None
+
