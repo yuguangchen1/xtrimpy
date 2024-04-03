@@ -52,12 +52,17 @@ def SpitzerIRS(fn):
     return tab['wavelength'], tab['flux_density'], tab['error']
 
 
-def Jades_NIRSpec(fn):
+def DJA_NIRSpec(fn):
 
     hdu = fits.open(fn)[1]
-    wave = hdu.data['WAVELENGTH']
-    flux = hdu.data['FLUX']
-    err = hdu.data['FLUX_ERR']
+    try:
+        wave = hdu.data['WAVELENGTH']
+        flux = hdu.data['FLUX']
+        err = hdu.data['FLUX_ERR']
+    except:
+        wave = hdu.data['wave']
+        flux = hdu.data['flux']
+        err = hdu.data['err']
 
     return wave, flux, err
 
