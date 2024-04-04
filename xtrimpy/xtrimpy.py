@@ -140,6 +140,9 @@ class XtrimGUI(QWidget):
         saveworkspaceAction = QAction('Save Workspace', self)
         saveworkspaceAction.triggered.connect(self.saveworkspaceDialog)
         fileMenu.addAction(saveworkspaceAction)
+        savefigureAction = QAction('Save Figure', self)
+        savefigureAction.triggered.connect(self.savefigureDialog)
+        fileMenu.addAction(savefigureAction)
 
         linelistMenu = menuBar.addMenu('Line List')
         openlinelistAction = QAction('Open Line List', self)
@@ -994,6 +997,23 @@ class XtrimGUI(QWidget):
                 pickle.dump((self.__version__, self.specs, self.plotting, self.gauss_wave, self.gauss_model, self.linelist), \
                             open(fileName, 'wb'))
                 self.logger.info(f"Saved workspace file: " + str(fileName))
+            except PermissionError:
+                self.showErrorDialog("Permission denied", "You do not have permission to save to this location.")
+            except OSError as e:
+                # Handle other issues like disk space errors
+                self.showErrorDialog("Error saving file", str(e))
+            except Exception as e:
+                # Handle other unforeseen errors
+                self.showErrorDialog("Error", f"An unexpected error occurred: {str(e)}")
+
+    def savefigureDialog(self):
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save Figure", "xtrim.png",
+                                                  "PNG (*.png);;JPEG (*.jpg);;PDF (*.pdf)", options=options)
+        if fileName:
+            try:
+                self.figure.savefig(fileName)
+                self.logger.info(f"Saved figure file: " + str(fileName))
             except PermissionError:
                 self.showErrorDialog("Permission denied", "You do not have permission to save to this location.")
             except OSError as e:
