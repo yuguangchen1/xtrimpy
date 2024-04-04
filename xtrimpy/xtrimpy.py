@@ -612,6 +612,9 @@ class XtrimGUI(QWidget):
                 self.input_mode = True
                 self.statusBar.showMessage("'s': input smoothing width:")
                 self.plotting['blocking'] = 's'
+            
+            else:
+                self.statusBar.showMessage("Key shortcut '{}' not recognized.".format(event.key))
 
         else:
             # input mode
