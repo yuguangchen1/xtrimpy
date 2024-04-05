@@ -41,9 +41,9 @@ def gauss(x, area, center, sigma, lin0, lin1):
 
 def fit_gauss(wavespec, gl):
     # fit Gaussian profile and measure flux
-    wave = wavespec.wave
-    spec = wavespec.spec_display
-    espec = wavespec.error_display
+    wave = wavespec.wave * (wavespec.addredshift + 1)
+    spec = wavespec.spec_display * wavespec.mult + wavespec.add
+    espec = wavespec.error_display * wavespec.mult + wavespec.add
 
     index = (wave >= gl[0]) & (wave < gl[1]) * np.isfinite(spec)
     if espec is not None:

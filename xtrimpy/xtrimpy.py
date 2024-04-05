@@ -971,8 +971,8 @@ class XtrimGUI(QWidget):
                                                 "All Files (*);;FITS Files (*.fits *.fit *.FTS);;tbl files (*.tbl)", options=options)
         if filenames:
             self.loadspec(filenames, loader=loader)
-            path_to_linelist = pkg_resources.resource_filename(__name__, 'lib/line_list.dat')
-            self.loadlinelist(path_to_linelist)
+            #path_to_linelist = pkg_resources.resource_filename(__name__, 'lib/line_list.dat')
+            #self.loadlinelist(path_to_linelist)
             self.update_color()
             self.plotspec(reset_lim=True)
             self.refresh_file_table()
