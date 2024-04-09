@@ -497,6 +497,20 @@ class XtrimGUI(QWidget):
                     self.logger.info("'k': EW = {0:.6f} +- {1:.6f}; Flux = {2:.6f} +- {3:.6f}; w0 = {4:.6f} +- {5:.6f}".format(*ew, *flux, *gauss_center))
                     self.plotting['blocking'] = None
 
+            elif event.key == 'z':
+                self.plotspec(reset_lim=True)
+
+                allfluxes = []
+                for i, wavespec in enumerate(self.specs):
+                    allfluxes.append(wavespec.spec_display * wavespec.mult)
+
+                ymin, ymax = np.percentile(allfluxes, [1, 99])
+                self.plotting['box'][1] = ymin
+                self.plotting['box'][3] = ymax
+
+                self.logger.info("'z': 99% scale in y-axis, (y0, y1) to ({1:.2f}, {3:.2f})".format(*self.plotting['box']))
+                self.plotspec()
+
             elif event.key == 'o':
                 # zoom out wavelength
 
@@ -523,7 +537,7 @@ class XtrimGUI(QWidget):
                 self.plotting['box'][0] += xwidth / 10
                 self.plotting['box'][2] += xwidth / 10
                 self.logger.info("'+': moving right (x0, x1) to ({0:.2f}, {2:.2f})".format(*self.plotting['box']))
-                self.plotspec()
+                self.plotspec()                
 
             elif event.key == '-':
                 # move left
