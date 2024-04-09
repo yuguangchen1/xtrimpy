@@ -1099,6 +1099,7 @@ class XtrimGUI(QWidget):
                         <li>'a': draw a zoom box</li>
                         <li>'b': set the y-baseline at flux=0</li>
                         <li>'c': reset the plotting range</li>
+                        <li>'z': set y-axis plotting range to 1-99% percentiles</li>
                         <li>'d': delete the nearest trim line</li>
                         <li>'e': calculate an equivalent width</li>
                         <li>'i': zoom in on x-axis</li>

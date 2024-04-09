@@ -15,6 +15,7 @@ For more information, visit [GitHub](https://github.com/yuguangchen1/xtrimpy).
 - 'a': draw a zoom box
 - 'b': set the y-baseline at flux=0
 - 'c': reset the plotting range
+- 'z': set y-axis plotting range to 1-99% percentiles
 - 'd': delete the nearest trim line
 - 'e': calculate an equivalent width
 - 'i': zoom in on x-axis
