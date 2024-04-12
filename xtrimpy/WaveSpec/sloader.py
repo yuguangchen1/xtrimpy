@@ -26,21 +26,25 @@ def default(fn):
 
     #No wavelength axis
     if flag == False:
-        raise ValueError("Header must contain a wavelength/velocity axis.")
+        axis = 1
 
-    #Get keywords defining wavelength axis
-    nwav = header["NAXIS{0}".format(axis)]
-    wav0 = header["CRVAL{0}".format(axis)]
-    card_dw = 'CD{0}_{0}'.format(axis)
-    if card_dw not in header:
-        card_dw = 'CDELT{0}'.format(axis)
+    try:
+        #Get keywords defining wavelength axis
+        nwav = header["NAXIS{0}".format(axis)]
+        wav0 = header["CRVAL{0}".format(axis)]
+        card_dw = 'CD{0}_{0}'.format(axis)
         if card_dw not in header:
-            raise ValueError("Wavelength header incomplete.")
-    dwav = header[card_dw]
-    pix0 = header["CRPIX{0}".format(axis)]
+            card_dw = 'CDELT{0}'.format(axis)
+            if card_dw not in header:
+                raise ValueError("Wavelength header incomplete.")
+        dwav = header[card_dw]
+        pix0 = header["CRPIX{0}".format(axis)]
 
-    #Calculate and return
-    wave = np.array([wav0 + (i - pix0 + 1) * dwav for i in range(nwav)])
+        #Calculate and return
+        wave = np.array([wav0 + (i - pix0 + 1) * dwav for i in range(nwav)])
+
+    except:
+        raise ValueError("Header must contain a wavelength/velocity axis.")
 
     return wave, spec, None
 
