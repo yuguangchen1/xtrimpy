@@ -78,3 +78,52 @@ def HIRES(fn):
 
     return wave, spec, None
 
+def BPASSv23(fn):
+    from astropy.io import ascii
+    from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton
+
+    tab = ascii.read(fn)
+
+    class NumberInputDialog(QDialog):
+        def __init__(self):
+            super().__init__()
+            self.initUI()
+
+        def initUI(self):
+            self.setWindowTitle('Input a Number')
+            self.layout = QVBoxLayout()
+
+            self.label1 = QLabel('Col numbers from 2-{0:d}'.format(len(tab.colnames)))
+            self.layout.addWidget(self.label1)
+
+            self.label2 = QLabel('log(Age) = 6+0.1*(n-2)')
+            self.layout.addWidget(self.label2)
+
+            self.numberInput = QLineEdit(self)
+            self.layout.addWidget(self.numberInput)
+
+            self.okButton = QPushButton('OK', self)
+            self.okButton.clicked.connect(self.accept)
+            self.layout.addWidget(self.okButton)
+
+            self.setLayout(self.layout)
+
+        def getNumber(self):
+            return self.numberInput.text()
+
+    def showNumberInputDialog():
+        dialog = NumberInputDialog()
+        if dialog.exec_() == QDialog.Accepted:
+            return dialog.getNumber()
+        return None
+    
+    number = showNumberInputDialog()
+    if number is not None:
+        return tab['col1'], tab['col{0:d}'.format(int(number))], None
+
+
+
+
+
+
+
