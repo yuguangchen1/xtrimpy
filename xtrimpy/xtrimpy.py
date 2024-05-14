@@ -915,23 +915,23 @@ class XtrimGUI(QWidget):
                 
                 # delete button
                 btn_delete = QPushButton('Delete')
-                btn_delete.clicked.connect(lambda: self.deleteRow(btn_delete))
+                btn_delete.clicked.connect(lambda _, row=i: self.deleteRow(row))
                 self.tableWidget.setCellWidget(i, 6, btn_delete)
+        elif len(self.specs)==0:
+            self.tableWidget.setRowCount(len(self.specs))
 
         self.tableWidget.blockSignals(False)
 
         return
 
-    def deleteRow(self, button):
+    def deleteRow(self, row):
         # Find the button's row
-        index = self.tableWidget.indexAt(button.pos())
-        if index.isValid():
-            fn = self.tableWidget.item(index.row(), 0).text()
-            row = index.row()
+        if row >= 0 and row < len(self.specs):
+            fn = self.tableWidget.item(row, 0).text()
             self.specs.pop(row)
-            self.tableWidget.removeRow(index.row())
+            self.update_color()
         
-            self.logger.info(f"Removed spectra ({row+1}): {fn}")
+            self.logger.info(f"Removed spectra ({row}): {fn}")
             self.plotspec()
             self.refresh_file_table()
         
