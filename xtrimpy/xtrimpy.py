@@ -474,14 +474,14 @@ class XtrimGUI(QWidget):
                             self.plotting['gauss_lim'][1], self.plotting['gauss_lim'][0]
                         
                     # fit gauss
-                    try:
-                        ew, flux, gauss_center, wmodel, smodel = fit_gauss(self.specs[0], self.plotting['gauss_lim'])
-                    except:
-                        ew = [np.nan, np.nan]
-                        flux = [np.nan, np.nan]
-                        gauss_center = [np.nan, np.nan]
-                        wmodel = None
-                        smodel = None
+                    #try:
+                    ew, flux, gauss_center, wmodel, smodel = fit_gauss(self.specs[0], self.plotting['gauss_lim'])
+                    #except:
+                    #    ew = [np.nan, np.nan]
+                    #    flux = [np.nan, np.nan]
+                    #    gauss_center = [np.nan, np.nan]
+                    #    wmodel = None
+                    #    smodel = None
 
                     self.plotting['ew'] = ew
                     self.plotting['flux'] = flux
