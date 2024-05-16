@@ -504,7 +504,7 @@ class XtrimGUI(QWidget):
                 for i, wavespec in enumerate(self.specs):
                     allfluxes.append(wavespec.spec_display * wavespec.mult)
 
-                ymin, ymax = np.percentile(allfluxes, [1, 99])
+                ymin, ymax = np.percentile(np.nan_to_num(allfluxes), [1, 99])
                 self.plotting['box'][1] = ymin
                 self.plotting['box'][3] = ymax
 
