@@ -70,6 +70,14 @@ def DJA_NIRSpec(fn):
 
     return wave, flux, err
 
+def AURORA(fn):
+    hdu = fits.open(fn)[1]
+    wave = hdu.data['lambda']
+    flux = hdu.data['flux']
+    err = hdu.data['err']
+
+    return wave, flux, err
+
 def ESO_UVES(fn):
 
     hdu = fits.open(fn)[1]
