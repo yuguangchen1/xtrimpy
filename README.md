@@ -38,8 +38,13 @@ For more information, visit [GitHub](https://github.com/yuguangchen1/xtrimpy).
 ## Installation
 ```
 git clone https://github.com/yuguangchen1/xtrimpy.git
-python setup.py
+python setup.py install
 ```
+or
+```
+python setup.py develop
+```
+
 To start the tool, 
 ```
 xtrimpy

@@ -70,6 +70,15 @@ def DJA_NIRSpec(fn):
 
     return wave, flux, err
 
+def ESO_UVES(fn):
+
+    hdu = fits.open(fn)[1]
+    wave = hdu.data['WAVE'].flatten()
+    flux = hdu.data['FLUX_REDUCED'].flatten()
+    err = hdu.data['ERR_REDUCED'].flatten()
+
+    return wave, flux, err
+
 def HIRES(fn):
     hdu = fits.open(fn)[0]
     hdr = hdu.header
