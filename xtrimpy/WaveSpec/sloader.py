@@ -16,7 +16,7 @@ def default(fn):
         #Keyword entry
         card = "CTYPE{0}".format(i+1)
         if not card in header:
-            raise ValueError("Header must contain 'CTYPE' keywords.")
+            continue
         
         #Possible wave types.
         if header[card] in ['AWAV', 'WAVE', 'VELO', 'Wavelength', 'WAVE-TAB']:
