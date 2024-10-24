@@ -18,13 +18,13 @@ def calc_ew(wavespec, cp):
 
     ew = np.trapz(spec[index] / ctm - 1, wave[index])
     if espec is not None:
-        ew_sig = np.sqrt(np.trapz((espec[index] / ctm)**2, wave[index]) * (cp[2] - cp[0]))
+        ew_sig = np.sqrt(np.trapz((espec[index] / ctm)**2)) * ((cp[2] - cp[0]) / np.sum(index))
     else:
         ew_sig = np.nan
 
     flux = np.trapz(spec[index] - ctm, wave[index])
     if espec is not None:
-        flux_sig = np.sqrt(np.trapz(espec[index]**2, wave[index]) * (cp[2] - cp[[0]]))
+        flux_sig = np.sqrt(np.trapz(espec[index]**2)) * ((cp[2] - cp[0]) / np.sum(index))
     else:
         flux_sig = np.nan
 
