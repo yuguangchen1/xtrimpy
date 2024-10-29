@@ -3,7 +3,8 @@ import os
 import argparse
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, \
     QMenuBar, QAction, QStatusBar, QFileDialog, QTableWidget, QTableWidgetItem, \
-    QDialog, QTextEdit, QSizePolicy, QTextBrowser, QMessageBox, QPushButton, QMenu
+    QDialog, QTextEdit, QSizePolicy, QTextBrowser, QMessageBox, QPushButton, QMenu, \
+    QRadioButton
 from PyQt5.QtGui import QColor, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QEvent, pyqtSignal, QObject
 import logging
@@ -76,6 +77,8 @@ class XtrimGUI(QWidget):
             "redshift_line": np.nan,
             "blocking": None    # operation in progress, blocking other key events
         }
+
+        self.focus = 0
 
         # gauss model
         self.gauss_wave = None
@@ -227,9 +230,9 @@ class XtrimGUI(QWidget):
         label_files = QLabel('Loaded Files:')
         self.tableWidget = QTableWidget()
         self.tableWidget.setRowCount(0)  # Set number of rows
-        self.tableWidget.setColumnCount(7)  # Set number of columns
+        self.tableWidget.setColumnCount(8)  # Set number of columns
         # Column headers (optional)
-        self.tableWidget.setHorizontalHeaderLabels(["Filename", "+Redshift", "Smooth", "x", "+", "Color"])
+        self.tableWidget.setHorizontalHeaderLabels(["Filename", "+Redshift", "Smooth", "x", "+", "Color", "", "Focus"])
         self.tableWidget.setColumnWidth(0, 200)
         self.tableWidget.setColumnWidth(1, 100)
         self.tableWidget.setColumnWidth(2, 70)
@@ -237,6 +240,7 @@ class XtrimGUI(QWidget):
         self.tableWidget.setColumnWidth(4, 70)
         self.tableWidget.setColumnWidth(5, 70)
         self.tableWidget.setColumnWidth(6, 70)
+        self.tableWidget.setColumnWidth(7, 70)
         self.tableWidget.itemChanged.connect(self.TableItemChanged)
     
         
@@ -442,7 +446,7 @@ class XtrimGUI(QWidget):
                             self.plotting['ew_cont'][3], self.plotting['ew_cont'][1]
 
                     # calculate EW
-                    ew, flux = calc_ew(self.specs[0], self.plotting['ew_cont'])
+                    ew, flux = calc_ew(self.specs[self.focus], self.plotting['ew_cont'])
                     self.plotting['ew'] = ew
                     self.plotting['flux'] = flux
 
@@ -475,7 +479,7 @@ class XtrimGUI(QWidget):
                         
                     # fit gauss
                     try:
-                        flux, ew, gauss_center, wmodel, smodel = fit_gauss(self.specs[0], self.plotting['gauss_lim'])
+                        flux, ew, gauss_center, wmodel, smodel = fit_gauss(self.specs[self.focus], self.plotting['gauss_lim'])
                     except:
                         ew = [np.nan, np.nan]
                         flux = [np.nan, np.nan]
@@ -846,7 +850,7 @@ class XtrimGUI(QWidget):
         self.vtableWidget.setItem(2, 2, item)
 
         # Gaussian Wave Center
-        item = QTableWidgetItem('Wgauss')
+        item = QTableWidgetItem('Centroid')
         item.setFlags(item.flags() & ~Qt.ItemIsEditable)
         self.vtableWidget.setItem(3, 0, item)
         item = QTableWidgetItem(str(self.plotting['gauss_center'][0]))
@@ -917,6 +921,14 @@ class XtrimGUI(QWidget):
                 btn_delete = QPushButton('Delete')
                 btn_delete.clicked.connect(lambda _, row=i: self.deleteRow(row))
                 self.tableWidget.setCellWidget(i, 6, btn_delete)
+
+                # focus radio button
+                btn_focus = QRadioButton()
+                if i==self.focus:
+                    btn_focus.setChecked(True)
+                btn_focus.clicked.connect(lambda _, row=i: self.focusSpec(row))
+                self.tableWidget.setCellWidget(i, 7, btn_focus)
+
         elif len(self.specs)==0:
             self.tableWidget.setRowCount(len(self.specs))
 
@@ -934,6 +946,12 @@ class XtrimGUI(QWidget):
             self.logger.info(f"Removed spectra ({row}): {fn}")
             self.plotspec()
             self.refresh_file_table()
+
+    def focusSpec(self, row):
+        self.focus = row
+        self.logger.info(f"Focus on spectra ({row})")
+        self.plotspec()
+        self.refresh_file_table()
         
     def TableItemChanged(self, item):
         # This method is called whenever an item is changed in the table
