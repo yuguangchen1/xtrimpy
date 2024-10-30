@@ -866,23 +866,23 @@ class XtrimGUI(QWidget):
         # Gaussian Wave Center
         item = QTableWidgetItem('Sigma')
         item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-        self.vtableWidget.setItem(3, 0, item)
+        self.vtableWidget.setItem(4, 0, item)
         item = QTableWidgetItem(str(self.plotting['gauss_sigma'][0]))
         item.setFlags(item.flags() | Qt.ItemIsEditable)
-        self.vtableWidget.setItem(3, 1, item)
+        self.vtableWidget.setItem(4, 1, item)
         item = QTableWidgetItem(str(self.plotting['gauss_sigma'][1]))
         item.setFlags(item.flags() | Qt.ItemIsEditable)
-        self.vtableWidget.setItem(3, 2, item)
+        self.vtableWidget.setItem(4, 2, item)
 
         # Trim lines
         if len(self.plotting['trim_lines']) > 0:
             for i, tl in enumerate(self.plotting['trim_lines']):
                 item = QTableWidgetItem('Trim{0:d}'.format(i))
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-                self.vtableWidget.setItem(4+i, 0, item)
+                self.vtableWidget.setItem(5+i, 0, item)
                 item = QTableWidgetItem(str(tl))
                 item.setFlags(item.flags() | Qt.ItemIsEditable)
-                self.vtableWidget.setItem(4+i, 1, item)
+                self.vtableWidget.setItem(5+i, 1, item)
 
         self.vtableWidget.blockSignals(False)
         return
