@@ -45,7 +45,7 @@ def fit_gauss(wavespec, gl):
     spec = wavespec.spec_display * wavespec.mult + wavespec.add
     espec = wavespec.error_display
     if espec is not None:
-        espec = wavespec.error_display * wavespec.mult + wavespec.add
+        espec = wavespec.error_display * wavespec.mult
 
     index = (wave >= gl[0]) & (wave < gl[1]) * np.isfinite(spec)
     if espec is not None:
