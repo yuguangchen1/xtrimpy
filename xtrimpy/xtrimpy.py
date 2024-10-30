@@ -73,6 +73,7 @@ class XtrimGUI(QWidget):
             "flux": [np.nan, np.nan],
             "gauss_lim": [None, None],
             "gauss_center": [np.nan, np.nan],
+            "gauss_sigma": [np.nan, np.nan],
             "trim_lines": [],
             "redshift_line": np.nan,
             "blocking": None    # operation in progress, blocking other key events
@@ -479,17 +480,19 @@ class XtrimGUI(QWidget):
                         
                     # fit gauss
                     try:
-                        flux, ew, gauss_center, wmodel, smodel = fit_gauss(self.specs[self.focus], self.plotting['gauss_lim'])
+                        flux, ew, gauss_center, gauss_sigma, wmodel, smodel = fit_gauss(self.specs[self.focus], self.plotting['gauss_lim'])
                     except:
                         ew = [np.nan, np.nan]
                         flux = [np.nan, np.nan]
                         gauss_center = [np.nan, np.nan]
+                        gauss_sigma = [np.nan, np.nan]
                         wmodel = None
                         smodel = None
 
                     self.plotting['ew'] = ew
                     self.plotting['flux'] = flux
                     self.plotting['gauss_center'] = gauss_center
+                    self.plotting['gauss_sigma'] = gauss_sigma
                     self.gauss_wave = wmodel
                     self.gauss_model = smodel
 
@@ -498,7 +501,7 @@ class XtrimGUI(QWidget):
                     self.refresh_value_table()
 
                     # 
-                    self.logger.info("'k': EW = {0:.6f} +- {1:.6f}; Flux = {2:.6f} +- {3:.6f}; w0 = {4:.6f} +- {5:.6f}".format(*ew, *flux, *gauss_center))
+                    self.logger.info("'k': EW = {0:.6f} +- {1:.6f}; Flux = {2:.6f} +- {3:.6f}; w0 = {4:.6f} +- {5:.6f}; sigma = {6:.6f} +- {7:.6f}".format(*ew, *flux, *gauss_center, *gauss_sigma))
                     self.plotting['blocking'] = None
 
             elif event.key == 'z':
@@ -857,6 +860,17 @@ class XtrimGUI(QWidget):
         item.setFlags(item.flags() | Qt.ItemIsEditable)
         self.vtableWidget.setItem(3, 1, item)
         item = QTableWidgetItem(str(self.plotting['gauss_center'][1]))
+        item.setFlags(item.flags() | Qt.ItemIsEditable)
+        self.vtableWidget.setItem(3, 2, item)
+
+        # Gaussian Wave Center
+        item = QTableWidgetItem('Sigma')
+        item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+        self.vtableWidget.setItem(3, 0, item)
+        item = QTableWidgetItem(str(self.plotting['gauss_sigma'][0]))
+        item.setFlags(item.flags() | Qt.ItemIsEditable)
+        self.vtableWidget.setItem(3, 1, item)
+        item = QTableWidgetItem(str(self.plotting['gauss_sigma'][1]))
         item.setFlags(item.flags() | Qt.ItemIsEditable)
         self.vtableWidget.setItem(3, 2, item)
 

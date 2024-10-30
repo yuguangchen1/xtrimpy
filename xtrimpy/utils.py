@@ -73,8 +73,9 @@ def fit_gauss(wavespec, gl):
     flux = [popt[0], np.sqrt(pcov[0, 0])]
     ew = [popt[0] / popt[3], np.sqrt(pcov[0, 0] / popt[3]**2 + popt[0]**2 * pcov[3, 3] / popt[3]**4)]
     center = [popt[1], np.sqrt(pcov[1, 1])]
+    sigma = [popt[2], np.sqrt(pcov[2, 2])]
 
-    return flux, ew, center, wave_fit, specmodel
+    return flux, ew, center, sigma, wave_fit, specmodel
 
 def parse_line_list(line):
     # Split the line by whitespace
