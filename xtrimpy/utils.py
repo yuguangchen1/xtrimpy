@@ -9,9 +9,9 @@ def calc_ew(wavespec, cp):
     #   errors are significantly underestimated. 
     #   2) Errors are approximate for uneven sampling.
 
-    wave = wavespec.wave
-    spec = wavespec.spec_display
-    espec = wavespec.error_display
+    wave = np.nan_to_num(wavespec.wave) * (wavespec.addredshift + 1)
+    spec = np.nan_to_num(wavespec.spec_display) * wavespec.mult + wavespec.add
+    espec = np.nan_to_num(wavespec.error_display) * wavespec.mult
 
     index = (wave >= cp[0]) & (wave < cp[2])
     ctm=(wave[index] - cp[0]) / (cp[2] - cp[0]) * (cp[3] - cp[1]) + cp[1]
@@ -41,9 +41,9 @@ def gauss(x, area, center, sigma, lin0, lin1):
 
 def fit_gauss(wavespec, gl):
     # fit Gaussian profile and measure flux
-    wave = wavespec.wave * (wavespec.addredshift + 1)
-    spec = wavespec.spec_display * wavespec.mult + wavespec.add
-    espec = wavespec.error_display
+    wave = np.nan_to_num(wavespec.wave) * (wavespec.addredshift + 1)
+    spec = np.nan_to_num(wavespec.spec_display) * wavespec.mult + wavespec.add
+    espec = np.nan_to_num(wavespec.error_display) * wavespec.mult
     if espec is not None:
         espec = wavespec.error_display * wavespec.mult
 
