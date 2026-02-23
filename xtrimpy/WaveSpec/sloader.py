@@ -59,14 +59,22 @@ def SpitzerIRS(fn):
 def DJA_NIRSpec(fn):
 
     hdu = fits.open(fn)[1]
-    try:
+    
+    column_names = hdu.data.columns.names
+    if 'WAVELENGTH' in column_names:
         wave = hdu.data['WAVELENGTH']
         flux = hdu.data['FLUX']
         err = hdu.data['FLUX_ERR']
-    except:
+    elif 'wave' in column_names:
         wave = hdu.data['wave']
         flux = hdu.data['flux']
         err = hdu.data['err']
+    elif 'LAMBDA' in column_names:
+        wave = hdu.data['LAMBDA']
+        flux = hdu.data['SPEC']
+        err = hdu.data['ERR']
+    else:
+        raise ValueError('Cannot recognize the input FITS table')
 
     return wave, flux, err
 
@@ -138,7 +146,19 @@ def BPASSv23(fn):
     if number is not None:
         return tab['col1'], tab['col{0:d}'.format(int(number))], None
 
+def example1(fn):
+    from astropy.io import ascii
 
+    tab = ascii.read(fn)
+
+    return np.array(tab['col1']) * 1e4, np.array(tab['col2']), np.array(tab['col3'])
+
+def example2(fn):
+    from astropy.io import ascii
+
+    tab = ascii.read(fn)
+
+    return np.array(tab['lambda']), np.array(tab['flux']), np.array(tab['error'])
 
 
 
